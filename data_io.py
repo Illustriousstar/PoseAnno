@@ -6,7 +6,6 @@ import cv2
 from PoseItem import PoseItem
 from pycocotools.coco import COCO
 from PyQt5.QtCore import QRectF
-from openpose.build.python.openpose import pyopenpose as op
 import numpy as np
 from sys import platform
 import requests
@@ -242,6 +241,7 @@ def load_openpose(img_path, remote=False):
     :return: pose item
     """
     if not remote:
+        from openpose.build.python.openpose import pyopenpose as op
         params = dict()
         params["model_folder"] = "openpose/models/"
 
