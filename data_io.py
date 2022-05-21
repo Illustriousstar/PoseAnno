@@ -13,6 +13,7 @@ import json
 
 import PIL
 
+
 def annotation_to_pose(annotations):
     """
     convert coco annotation of one person to poseItem
@@ -118,16 +119,15 @@ def prepare_annotation_file(img_name):
     annotation_filename = os.path.join(path, name + "_annotation" + ".json")
     img = PIL.Image.open(img_name)
     width, height = img.size
-    with open("annotation_template.json") as f:
+    with open("config/annotation_template.json") as f:
         json_dict = json.load(f)
-    json_dict["images"] = [
-                {
-                    "file_name": name + ext,
-                    "height": width,
-                    "width": height,
-                    "id": 0
-                }
-            ]
+    json_dict["images"] = [{
+            "file_name": name + ext,
+            "height": width,
+            "width": height,
+            "id": 0
+        }
+    ]
     with open(annotation_filename, "w") as f:
         json.dump(json_dict, f)
 

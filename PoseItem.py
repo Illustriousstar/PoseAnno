@@ -39,7 +39,7 @@ class PoseItem(QGraphicsRectItem):
         self.selected_point = None
 
         if PoseItem.point_list is None:
-            with open("Poseitem.json") as f:
+            with open("config/Poseitem.json") as f:
                 json_dict = json.load(f)
                 PoseItem.point_list = json_dict["points"]
                 PoseItem.line_list = json_dict["lines"]
