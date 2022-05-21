@@ -11,6 +11,7 @@ from sys import platform
 import requests
 import json
 
+import PIL
 
 def annotation_to_pose(annotations):
     """
@@ -108,130 +109,27 @@ def pose_to_annotation(img_name, pose_list):
 
 
 def prepare_annotation_file(img_name):
+    """
+    prepare annotation file from template if it doesn't exist
+    :param img_name: name of the designated image
+    """
     path, name = os.path.split(img_name)
     name, ext = os.path.splitext(name)
     annotation_filename = os.path.join(path, name + "_annotation" + ".json")
-    import PIL
     img = PIL.Image.open(img_name)
     width, height = img.size
-    with open(annotation_filename, "w") as f:
-        json.dump({
-            # "info": info,
-            "images": [
+    with open("annotation_template.json") as f:
+        json_dict = json.load(f)
+    json_dict["images"] = [
                 {
                     "file_name": name + ext,
                     "height": width,
                     "width": height,
                     "id": 0
                 }
-            ],
-            "annotations": [],
-            "categories": [
-                {
-                    "supercategory": "person",
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": [
-                        "nose",
-                        "left_eye",
-                        "right_eye",
-                        "left_ear",
-                        "right_ear",
-                        "left_shoulder",
-                        "right_shoulder",
-                        "left_elbow",
-                        "right_elbow",
-                        "left_wrist",
-                        "right_wrist",
-                        "left_hip",
-                        "right_hip",
-                        "left_knee",
-                        "right_knee",
-                        "left_ankle",
-                        "right_ankle"
-                    ],
-                    "skeleton": [
-                        [
-                            16,
-                            14
-                        ],
-                        [
-                            14,
-                            12
-                        ],
-                        [
-                            17,
-                            15
-                        ],
-                        [
-                            15,
-                            13
-                        ],
-                        [
-                            12,
-                            13
-                        ],
-                        [
-                            6,
-                            12
-                        ],
-                        [
-                            7,
-                            13
-                        ],
-                        [
-                            6,
-                            7
-                        ],
-                        [
-                            6,
-                            8
-                        ],
-                        [
-                            7,
-                            9
-                        ],
-                        [
-                            8,
-                            10
-                        ],
-                        [
-                            9,
-                            11
-                        ],
-                        [
-                            2,
-                            3
-                        ],
-                        [
-                            1,
-                            2
-                        ],
-                        [
-                            1,
-                            3
-                        ],
-                        [
-                            2,
-                            4
-                        ],
-                        [
-                            3,
-                            5
-                        ],
-                        [
-                            4,
-                            6
-                        ],
-                        [
-                            5,
-                            7
-                        ]
-                    ]
-                }
-            ],
-            "licenses": []
-        }, f)
+            ]
+    with open(annotation_filename, "w") as f:
+        json.dump(json_dict, f)
 
 
 def load_openpose(img_path, remote=False):
