@@ -154,11 +154,10 @@ def load_openpose(img_path, remote=False):
         datum.cvInputData = imageToProcess
         opWrapper.emplaceAndPop(op.VectorDatum([datum]))
 
-        print("Body keypoints: \n" + str(datum.poseKeypoints))
         key_points = np.array(datum.poseKeypoints)
         return process_openpose(key_points)
     else:
-        url = "http://166.111.139.99:5000/openpose"
+        url = "http://lab_dust:5000/openpose"
         files = {
             "file": open(img_path, "rb")
         }

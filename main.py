@@ -33,16 +33,16 @@ class Window(QWidget):
 
         # right side buttons
         # point buttons
-        self.button_add_pose = QPushButton("Add Pose")
+        self.button_add_pose = QPushButton("add Pose")
         self.button_add_pose.setCheckable(True)
-        self.button_delete = QPushButton("Delete")
+        self.button_delete = QPushButton("delete")
         self.button_delete.clicked.connect(self.deletePoint)
         self.button_model = QPushButton("model")
         self.button_model.clicked.connect(self.load_model)
 
         # import / export data
-        self.button_import = QPushButton("import")
-        self.button_export = QPushButton("export")
+        self.button_import = QPushButton("open")
+        self.button_export = QPushButton("save")
         self.button_import.clicked.connect(self.openImage)
         self.button_export.clicked.connect(self.export_data)
 
