@@ -37,6 +37,7 @@ class PoseItem(QGraphicsRectItem):
         self.click_pos = None
         self.click_rect = None
         self.selected_point = None
+        self.setAcceptHoverEvents(True)
 
         if PoseItem.point_list is None:
             with open("config/Poseitem.json") as f:
@@ -146,6 +147,23 @@ class PoseItem(QGraphicsRectItem):
         self.point_list[-1].ratio[1] = (self.point_list[5].ratio[1] + self.point_list[6].ratio[1]) / 2
         self.setRect(rect)
 
+    def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        super().hoverEnterEvent(event)
+        self.setBrush(QColor(255, 0, 0, 96))
+        self.setZValue(3)
+
+    def hoverLeaveEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        super().hoverLeaveEvent(event)
+        self.setBrush(QColor(255, 255, 255, 0))
+        self.setZValue(0)
+
+    def setZValue(self, z: float) -> None:
+        super().setZValue(z)
+        for point in self.point_list:
+            point.setZValue(z + 1)
+        for line in self.line_list:
+            line.setZValue(z + 1)
+
 
 class KeyPointItem(QGraphicsEllipseItem):
     def __init__(self, ratio, radius=15, status=2, parent=None, name: str = ""):
@@ -165,7 +183,7 @@ class KeyPointItem(QGraphicsEllipseItem):
         self.label.setWidget(label)
         self.label.setVisible(False)
         self.label.setPos(self.radius, -self.radius)
-        self.label.setZValue(2)
+        self.label.setZValue(self.zValue() + 1)
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         self.parentItem().updatePointRatio()
@@ -203,3 +221,7 @@ class KeyPointItem(QGraphicsEllipseItem):
         color.setAlphaF(opacity)
         brush.setColor(color)
         self.setBrush(brush)
+
+    def setZValue(self, z):
+        super().setZValue(z)
+        self.label.setZValue(z + 1)

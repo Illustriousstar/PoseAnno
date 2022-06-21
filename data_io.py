@@ -34,7 +34,6 @@ def annotation_to_pose(annotations):
             pose.point_list[point_id].setStatus(v)
         pose.updatePointRatio()
         pose_list.append(pose)
-    # print(len(pose_list))
     return pose_list
 
 
@@ -181,7 +180,7 @@ def process_openpose(key_points: np.array) -> list:
         w_h = np.max(valid_points, axis=0) - x_y
         x_y = x_y - w_h * 0.1
         w_h = w_h * 1.2
-        print(np.concatenate((x_y, w_h)))
+        # print(np.concatenate((x_y, w_h)))
         rect = QRectF(*np.concatenate((x_y, w_h)))
         pose.setRect(rect)
         # set points
