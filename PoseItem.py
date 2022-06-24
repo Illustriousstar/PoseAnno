@@ -27,16 +27,17 @@ class PoseItem(QGraphicsRectItem):
     human pose item, contains 17 human key points and corresponding lines
     """
     point_list = None
-    line_list = None
     point_colors = None
+    point_radius = 2
+    line_list = None
     line_colors = None
+    click_pos = None
+    click_rect = None
+    selected_point = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFlags(QGraphicsItem.ItemIsSelectable)
-        self.click_pos = None
-        self.click_rect = None
-        self.selected_point = None
         self.setAcceptHoverEvents(True)
 
         if PoseItem.point_list is None:
@@ -59,10 +60,7 @@ class PoseItem(QGraphicsRectItem):
             pen.setWidth(1)
             point.setPen(pen)
             point.setZValue(1.0)
-        for line, color in zip(self.line_list, PoseItem.line_colors):
-            pen = QPen(QColor(*color))
-            pen.setWidth(5)
-            line.setPen(pen)
+        self.setLineWidth()
 
         # draw bounding box
         pen = QPen(Qt.black)
@@ -129,9 +127,10 @@ class PoseItem(QGraphicsRectItem):
                 point.setFlag(QGraphicsItem.ItemIsMovable)
         # scaling radius
         rect = self.scene().sceneRect()
-        radius = min(rect.width(), rect.height()) * 0.015
+        self.point_radius = min(rect.width(), rect.height()) * 0.015
         for point in self.point_list:
-            point.setRadius(radius)
+            point.setRadius(self.point_radius)
+        self.setLineWidth(self.point_radius * 0.67)
 
     def updatePointRatio(self):
         # update point ratio
@@ -163,6 +162,27 @@ class PoseItem(QGraphicsRectItem):
             point.setZValue(z + 1)
         for line in self.line_list:
             line.setZValue(z + 1)
+
+    def scalePoint(self, factor=1.0):
+        """
+        scale radius of all key points using given factor
+        :param factor: factor to scale
+        :return:
+        """
+        self.point_radius *= factor
+        print(self.point_radius)
+        for point in self.point_list:
+            point.setRadius(self.point_radius)
+        self.setLineWidth(self.point_radius * 0.67)
+        pen = QPen(Qt.black)
+        pen.setWidth(self.point_radius * 0.67)
+        self.setPen(pen)
+
+    def setLineWidth(self, width=5):
+        for line, color in zip(self.line_list, PoseItem.line_colors):
+            pen = QPen(QColor(*color))
+            pen.setWidth(width)
+            line.setPen(pen)
 
 
 class KeyPointItem(QGraphicsEllipseItem):
@@ -206,6 +226,7 @@ class KeyPointItem(QGraphicsEllipseItem):
         self.label.setVisible(False)
 
     def setRadius(self, radius):
+        self.radius = radius
         self.setRect(-radius, -radius, 2 * radius, 2 * radius)
 
     def setStatus(self, status):

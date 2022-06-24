@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QGraphicsView
 class View(QGraphicsView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setDragMode(self.RubberBandDrag)
+        # self.setDragMode(self.RubberBandDrag)
         self.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing |
                             QPainter.SmoothPixmapTransform)
         # self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -23,12 +23,17 @@ class View(QGraphicsView):
     def scaleView(self, scaleFactor):
         factor = self.transform().scale(
             scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width()
-        if factor < 0.07 or factor > 100:
+        # restrict total scale factor
+        if factor < 0.5 or factor > 20:
             return
+        self.setResizeAnchor(self.AnchorUnderMouse)
         self.scale(scaleFactor, scaleFactor)
+        self.scene().zoom_signal.emit(1 / scaleFactor)
 
     def wheelEvent(self, event):
         if event.modifiers() & Qt.ControlModifier:
-            self.scaleView(math.pow(2.0, -event.angleDelta().y() / 240.0))
+            delta = -event.angleDelta().y()
+            factor = 1.1 if 0 < delta else 1 / 1.1
+            self.scaleView(factor)
             return event.accept()
         super().wheelEvent(event)

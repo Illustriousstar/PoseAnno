@@ -11,10 +11,13 @@ from PoseItem import PoseItem
 
 
 class Scene(QGraphicsScene):
+    current_rect = None
+    start = QPointF()
+    zoom_signal = QtCore.pyqtSignal(float)
+
     def __init__(self, *args):
         super().__init__(*args)
-        self.current_rect = None
-        self.start = QPointF()
+        self.zoom_signal.connect(self.setPointZoom)
 
     def mousePressEvent(self, e):
         if self.parent().button_add_pose.isChecked():
@@ -44,3 +47,14 @@ class Scene(QGraphicsScene):
         painter.setPen(Qt.transparent)
         painter.setBrush(Qt.lightGray)
         painter.drawRect(self.sceneRect())
+
+    # set zoom of key points to ensure scale invariance
+    def setPointZoom(self, factor=1.0):
+        """
+        scale key points of all pose items
+        :param factor: factor to scale
+        :return:
+        """
+        for item in self.items():
+            if type(item) is PoseItem:
+                item.scalePoint(factor)
