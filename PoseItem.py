@@ -170,9 +170,11 @@ class PoseItem(QGraphicsRectItem):
         :return:
         """
         self.point_radius *= factor
-        print(self.point_radius)
         for point in self.point_list:
             point.setRadius(self.point_radius)
+            pen = self.pen()
+            pen.setWidthF(self.point_radius * 0.33)
+            point.setPen(pen)
         self.setLineWidth(self.point_radius * 0.67)
         pen = QPen(Qt.black)
         pen.setWidth(self.point_radius * 0.67)
