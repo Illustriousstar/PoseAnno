@@ -33,7 +33,6 @@ class Window(QWidget):
 
         # state variables
         self.to_add_point = False
-        self.cur_img_path = None
         self.pixmap = None
         self.output_dir = None
         self.lastOpenDir = None
@@ -52,11 +51,13 @@ class Window(QWidget):
         self.button_import = QPushButton("Open")
         self.button_export = QPushButton("Save")
         self.button_open_dir = QPushButton("Open Dir")
+        self.button_open_prev_img = QPushButton("Prev")
         self.button_open_next_img = QPushButton("Next")
-        self.button_import.clicked.connect(self.openImage)
+        self.button_import.clicked.connect(self.openImgDialog)
         self.button_export.clicked.connect(self.export_data)
         self.button_open_dir.clicked.connect(self.openDirDialog)
-        self.button_open_next_img.clicked.connect(self.openNextImg)
+        self.button_open_prev_img.clicked.connect(lambda: self.switchImg(open_next=False))
+        self.button_open_next_img.clicked.connect(lambda: self.switchImg(open_next=True))
 
         # widgets
         self.fileListWidget = QListWidget()
@@ -68,6 +69,7 @@ class Window(QWidget):
         vbox.addWidget(self.button_export)
         vbox.addWidget(self.button_model)
         vbox.addWidget(self.button_open_dir)
+        vbox.addWidget(self.button_open_prev_img)
         vbox.addWidget(self.button_open_next_img)
         # vbox.addWidget(self.fileListWidget)
 
@@ -83,44 +85,23 @@ class Window(QWidget):
         for item in self.scene.selectedItems():
             self.scene.removeItem(item)
 
-    def openImage(self):
+    def openImgDialog(self):
         image_path, _ = QFileDialog.getOpenFileName()
         if len(image_path) == 0:
             return
-
-        if self.cur_img_path:
-            self.cur_img_path = None
-            self.pixmap = None
-        for item in self.scene.items():
-            self.scene.removeItem(item)
-        self.cur_img_path = image_path
-        self.pixmap = QtGui.QPixmap(image_path)
-        self.pixmap = self.scene.addPixmap(self.pixmap)
-        self.pixmap.setZValue(-1)
-        self.scene.setSceneRect(self.pixmap.boundingRect())
-        self.view.fitInView(self.pixmap, Qt.KeepAspectRatio)
-
-        # load annotations
-        annotations = img_to_annotation(image_path)
-
-        for pose in annotation_to_pose(annotations):
-            self.scene.addItem(pose)
-
-        for item in self.scene.items():
-            if type(item) is PoseItem:
-                item.setInit()
+        self.loadFile(image_path)
 
     def export_data(self):
         pose_list = []
         for item in self.scene.items():
             if type(item) is PoseItem:
                 pose_list.append(item)
-        pose_to_annotation(self.cur_img_path, pose_list)
+        pose_to_annotation(self.filename, pose_list)
 
     def load_model(self):
-        if self.cur_img_path is None:
+        if self.filename is None:
             return
-        pose_list = load_openpose(self.cur_img_path, remote=True)
+        pose_list = load_openpose(self.filename, remote=True)
         for pose in pose_list:
             self.scene.addItem(pose)
 
@@ -180,7 +161,7 @@ class Window(QWidget):
         for i in range(self.fileListWidget.count()):
             item = self.fileListWidget.item(i)
             self.imageList.append(item.text())
-        self.openNextImg(load=load)
+        self.switchImg(open_next=True)
 
     def scanAllImages(self, folderPath):
         """
@@ -203,11 +184,10 @@ class Window(QWidget):
         images = natsort.os_sorted(images)
         return images
 
-    def openNextImg(self, load=True):
+    def switchImg(self, open_next=True):
         """
-        open next image in the list, copied from
-        https://github.com/wkentaro/labelme/blob/819a93cbbc8a7ae3009e9f380111d742e6c06615/labelme/app.py#L1696
-        :param load: whether load image file or not
+        switch to adjacent image
+        :param open_next: whether to open the next or previous img
         :return:
         """
         if len(self.imageList) <= 0:
@@ -217,7 +197,11 @@ class Window(QWidget):
             filename = self.imageList[0]
         else:
             cur_index = self.imageList.index(self.filename)
-            next_index = (cur_index + 1) % len(self.imageList)
+            len_list = len(self.imageList)
+            if open_next:
+                next_index = (cur_index + 1) % len_list
+            else:
+                next_index = (cur_index - 1 + len_list) % len_list
             filename = self.imageList[next_index]
         self.filename = filename
         if self.filename:
@@ -226,10 +210,8 @@ class Window(QWidget):
     def loadFile(self, filename=None):
         """
         Load the specified file, or the last opened file if None.
-        copied from:
-        https://github.com/wkentaro/labelme/blob/819a93cbbc8a7ae3009e9f380111d742e6c06615/labelme/app.py#L1459
         :param filename: file to open
-        :return:
+        :return: whether successful or not
         """
         """"""
         # file should exist
