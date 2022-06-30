@@ -39,7 +39,7 @@ class Scene(QGraphicsScene):
 
     def mouseReleaseEvent(self, e):
         if self.current_rect is not None:
-            self.current_rect.setInit(init=False)
+            self.current_rect.setInit()
             self.current_rect = None
         super().mouseReleaseEvent(e)
 

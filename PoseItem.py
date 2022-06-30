@@ -121,10 +121,15 @@ class PoseItem(QGraphicsRectItem):
                 line.setLine(QLineF(self.point_list[p1].pos(), self.point_list[p2].pos()))
         super().setRect(rect.normalized())
 
-    def setInit(self, init=True):  # not init state, points are movable
-        if not init:
-            for point in self.point_list[:-1]:
-                point.setFlag(QGraphicsItem.ItemIsMovable)
+    def setInit(self):
+        """
+        operations after pose item is created added to scene,
+        set points movable and set point radius
+        :return:
+        """
+        for point in self.point_list[:-1]:
+            point.setFlag(QGraphicsItem.ItemIsMovable)
+
         # scaling radius
         rect = self.scene().sceneRect()
         self.point_radius = min(rect.width(), rect.height()) * 0.015
