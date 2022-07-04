@@ -1,13 +1,10 @@
 import os
 import glob
-import json
-import sys
 import cv2
-from PoseItem import PoseItem
+from graphics.labels.PoseItem import PoseItem
 from pycocotools.coco import COCO
 from PyQt5.QtCore import QRectF
 import numpy as np
-from sys import platform
 import requests
 import json
 

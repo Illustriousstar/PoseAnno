@@ -1,5 +1,4 @@
 import sys
-import os
 from data_io import (
     img_to_annotation,
     annotation_to_pose,
@@ -7,7 +6,6 @@ from data_io import (
     load_openpose
 )
 from PyQt5.QtCore import Qt, QFile
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -20,9 +18,11 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 import natsort
-from PoseItem import PoseItem
-from Scene import Scene
-from View import View
+from graphics.labels.PoseItem import PoseItem
+from graphics.Scene import Scene
+from graphics.View import View
+from utils import *
+from toolbar import ToolBar
 
 
 class Window(QWidget):
@@ -62,20 +62,39 @@ class Window(QWidget):
         # widgets
         self.fileListWidget = QListWidget()
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.button_add_pose)
-        vbox.addWidget(self.button_delete)
-        vbox.addWidget(self.button_import)
-        vbox.addWidget(self.button_export)
-        vbox.addWidget(self.button_model)
-        vbox.addWidget(self.button_open_dir)
-        vbox.addWidget(self.button_open_prev_img)
-        vbox.addWidget(self.button_open_next_img)
-        # vbox.addWidget(self.fileListWidget)
+        vbox_right = QVBoxLayout()
+        vbox_right.addWidget(self.button_add_pose)
+        vbox_right.addWidget(self.button_delete)
+        vbox_right.addWidget(self.button_import)
+        vbox_right.addWidget(self.button_export)
+        vbox_right.addWidget(self.button_model)
+        vbox_right.addWidget(self.button_open_dir)
+        vbox_right.addWidget(self.button_open_prev_img)
+        vbox_right.addWidget(self.button_open_next_img)
+        # vbox_right.addWidget(self.fileListWidget)
+
+        # actions
+        open_next_img = newAction(
+            parent=self,
+            text=self.tr("&Next Image"),
+            slot=lambda: self.switchImg(open_next=True),
+            shortcut="D",
+            icon="NEXT",
+            enabled=True
+        )
+
+        # toolbar
+        toolbar = ToolBar("Tools")
+        toolbar.clear()
+        toolbar.addAction(open_next_img)
+
+        vbox_left = QVBoxLayout()
+        vbox_left.addWidget(toolbar)
+        vbox_left.addWidget(self.view)
 
         hbox = QHBoxLayout()
-        hbox.addWidget(self.view)
-        hbox.addLayout(vbox)
+        hbox.addLayout(vbox_left)
+        hbox.addLayout(vbox_right)
 
         self.setLayout(hbox)
         rect = QApplication.instance().desktop().availableGeometry(self)

@@ -1,5 +1,3 @@
-import sys
-import math
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import (
     Qt,
@@ -7,7 +5,7 @@ from PyQt5.QtCore import (
     QPointF,
 )
 from PyQt5.QtWidgets import QGraphicsScene
-from PoseItem import PoseItem
+from graphics.labels.PoseItem import PoseItem
 
 
 class Scene(QGraphicsScene):
