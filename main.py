@@ -48,29 +48,23 @@ class Window(QWidget):
         self.button_model = QPushButton("Model")
         self.button_model.clicked.connect(self.load_model)
         # import / export data
-        self.button_import = QPushButton("Open")
+        self.button_open_img = QPushButton("Open")
         self.button_export = QPushButton("Save")
         self.button_open_dir = QPushButton("Open Dir")
-        self.button_open_prev_img = QPushButton("Prev")
-        self.button_open_next_img = QPushButton("Next")
-        self.button_import.clicked.connect(self.openImgDialog)
+        self.button_open_img.clicked.connect(self.openImgDialog)
         self.button_export.clicked.connect(self.export_data)
         self.button_open_dir.clicked.connect(self.openDirDialog)
-        self.button_open_prev_img.clicked.connect(lambda: self.switchImg(open_next=False))
-        self.button_open_next_img.clicked.connect(lambda: self.switchImg(open_next=True))
 
         # widgets
         self.fileListWidget = QListWidget()
 
         vbox_right = QVBoxLayout()
+        vbox_right.addWidget(self.button_open_img)
+        vbox_right.addWidget(self.button_open_dir)
         vbox_right.addWidget(self.button_add_pose)
         vbox_right.addWidget(self.button_delete)
-        vbox_right.addWidget(self.button_import)
         vbox_right.addWidget(self.button_export)
         vbox_right.addWidget(self.button_model)
-        vbox_right.addWidget(self.button_open_dir)
-        vbox_right.addWidget(self.button_open_prev_img)
-        vbox_right.addWidget(self.button_open_next_img)
         # vbox_right.addWidget(self.fileListWidget)
 
         # actions
@@ -80,13 +74,18 @@ class Window(QWidget):
             slot=lambda: self.switchImg(open_next=True),
             shortcut="D",
             icon="NEXT",
-            enabled=True
+        )
+
+        open_prev_img = newAction(
+            parent=self,
+            text=self.tr("&Prev Image"),
+            slot=lambda: self.switchImg(open_next=False),
+            shortcut="A",
+            icon="PREVIOUS",
         )
 
         # toolbar
-        toolbar = ToolBar("Tools")
-        toolbar.clear()
-        toolbar.addAction(open_next_img)
+        toolbar = ToolBar("Tools", [open_prev_img, open_next_img])
 
         vbox_left = QVBoxLayout()
         vbox_left.addWidget(toolbar)
