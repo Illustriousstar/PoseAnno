@@ -41,6 +41,12 @@ class Window(QWidget):
         self.imageList = []
 
         # actions
+        delete_item = newAction(
+            parent=self,
+            text=self.tr("&Delete"),
+            slot=self.deleteItem,
+            shortcut=QKeySequence.Delete,
+        )
         open_next_img = newAction(
             parent=self,
             text=self.tr("&Next Image"),
@@ -58,7 +64,7 @@ class Window(QWidget):
         )
 
         # toolbar
-        toolbar = ToolBar("Tools", [open_prev_img, open_next_img])
+        toolbar = ToolBar("Tools", [open_prev_img, delete_item, open_next_img])
 
         # right side buttons
         # point buttons
