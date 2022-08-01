@@ -42,6 +42,25 @@ class FaceItem(QGraphicsRectItem):
         pen.setWidth(5)
         self.setPen(pen)
 
+    def setRect(self, rect: QRectF = None) -> None:
+        super().setRect(rect.normalized())
+
+    def setInit(self):
+        """
+        operations after face item is created added to scene,
+        set points movable and set point radius
+        :return:
+        """
+        pass
+
+    def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        super().hoverEnterEvent(event)
+        self.setBrush(QColor(255, 0, 0, 96))
+
+    def hoverLeaveEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        super().hoverLeaveEvent(event)
+        self.setBrush(QColor(255, 255, 255, 0))
+
     def mousePressEvent(self, e):
         # scaling bounding rect
         self.click_pos = e.pos()
@@ -73,14 +92,3 @@ class FaceItem(QGraphicsRectItem):
             # reset pos to (0, 0) after move event
             self.setRect(QRectF(self.rect().topLeft() + self.pos(), self.rect().bottomRight() + self.pos()))
             self.setPos(0.0, 0.0)
-
-    def setRect(self, rect: QRectF = None) -> None:
-        super().setRect(rect.normalized())
-
-    def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
-        super().hoverEnterEvent(event)
-        self.setBrush(QColor(255, 0, 0, 96))
-
-    def hoverLeaveEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
-        super().hoverLeaveEvent(event)
-        self.setBrush(QColor(255, 255, 255, 0))

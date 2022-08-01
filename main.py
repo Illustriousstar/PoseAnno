@@ -46,6 +46,7 @@ class Window(QWidget):
             text=self.tr("&Delete"),
             slot=self.deleteItem,
             shortcut=QKeySequence.Delete,
+            icon="delete"
         )
         open_next_img = newAction(
             parent=self,
@@ -70,6 +71,8 @@ class Window(QWidget):
         # point buttons
         self.button_add_pose = QPushButton("Add Pose")
         self.button_add_pose.setCheckable(True)
+        self.button_add_face = QPushButton("Add Face")
+        self.button_add_face.setCheckable(True)
         self.button_delete = QPushButton("Delete")
         self.button_delete.clicked.connect(delete_item.trigger)
         self.button_model = QPushButton("Model")
@@ -89,6 +92,7 @@ class Window(QWidget):
         vbox_right.addWidget(self.button_open_img)
         vbox_right.addWidget(self.button_open_dir)
         vbox_right.addWidget(self.button_add_pose)
+        vbox_right.addWidget(self.button_add_face)
         vbox_right.addWidget(self.button_delete)
         vbox_right.addWidget(self.button_export)
         vbox_right.addWidget(self.button_model)

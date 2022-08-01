@@ -6,6 +6,7 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtWidgets import QGraphicsScene
 from graphics.labels.PoseItem import PoseItem
+from graphics.labels.FaceItem import FaceItem
 
 
 class Scene(QGraphicsScene):
@@ -18,12 +19,18 @@ class Scene(QGraphicsScene):
         self.zoom_signal.connect(self.setPointZoom)
 
     def mousePressEvent(self, e):
-        if self.parent().button_add_pose.isChecked():
+        if self.parent().button_add_pose.isChecked()\
+                or self.parent().button_add_face.isChecked():
             if e.button() == Qt.LeftButton:
                 self.start = e.scenePos()
-                self.current_rect = PoseItem(QRectF(self.start, self.start))
+                self.current_rect = PoseItem(QRectF(self.start, self.start)) \
+                    if self.parent().button_add_pose.isChecked() \
+                    else FaceItem(QRectF(self.start, self.start))
                 self.addItem(self.current_rect)
-                self.parent().button_add_pose.setChecked(False)
+                if self.parent().button_add_pose.isChecked():
+                    self.parent().button_add_pose.setChecked(False)
+                elif self.parent().button_add_face.isChecked():
+                    self.parent().button_add_face.setChecked(False)
                 e.accept()
             elif e.button() == Qt.RightButton:
                 self.parent().button_add_pose.setChecked(False)
