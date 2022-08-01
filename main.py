@@ -6,6 +6,7 @@ from data_io import (
     load_openpose
 )
 from PyQt5.QtCore import Qt, QFile
+from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -39,12 +40,32 @@ class Window(QWidget):
         self.filename = None
         self.imageList = []
 
+        # actions
+        open_next_img = newAction(
+            parent=self,
+            text=self.tr("&Next Image"),
+            slot=lambda: self.switchImg(open_next=True),
+            shortcut="D",
+            icon="NEXT",
+        )
+
+        open_prev_img = newAction(
+            parent=self,
+            text=self.tr("&Prev Image"),
+            slot=lambda: self.switchImg(open_next=False),
+            shortcut="A",
+            icon="PREVIOUS",
+        )
+
+        # toolbar
+        toolbar = ToolBar("Tools", [open_prev_img, open_next_img])
+
         # right side buttons
         # point buttons
         self.button_add_pose = QPushButton("Add Pose")
         self.button_add_pose.setCheckable(True)
         self.button_delete = QPushButton("Delete")
-        self.button_delete.clicked.connect(self.deletePoint)
+        self.button_delete.clicked.connect(delete_item.trigger)
         self.button_model = QPushButton("Model")
         self.button_model.clicked.connect(self.load_model)
         # import / export data
@@ -67,26 +88,6 @@ class Window(QWidget):
         vbox_right.addWidget(self.button_model)
         # vbox_right.addWidget(self.fileListWidget)
 
-        # actions
-        open_next_img = newAction(
-            parent=self,
-            text=self.tr("&Next Image"),
-            slot=lambda: self.switchImg(open_next=True),
-            shortcut="D",
-            icon="NEXT",
-        )
-
-        open_prev_img = newAction(
-            parent=self,
-            text=self.tr("&Prev Image"),
-            slot=lambda: self.switchImg(open_next=False),
-            shortcut="A",
-            icon="PREVIOUS",
-        )
-
-        # toolbar
-        toolbar = ToolBar("Tools", [open_prev_img, open_next_img])
-
         vbox_left = QVBoxLayout()
         vbox_left.addWidget(toolbar)
         vbox_left.addWidget(self.view)
@@ -99,7 +100,8 @@ class Window(QWidget):
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
 
-    def deletePoint(self):
+    def deleteItem(self):
+        print("Deleted")
         for item in self.scene.selectedItems():
             self.scene.removeItem(item)
 

@@ -42,7 +42,6 @@ class PoseItem(QGraphicsRectItem):
         self.setAcceptHoverEvents(True)
 
         if PoseItem.point_list is None:
-            print(os.getcwd())
             with open("./config/Poseitem.json") as f:
                 json_dict = json.load(f)
                 PoseItem.point_list = json_dict["points"]

@@ -4,6 +4,7 @@ from PyQt5.QtCore import (
     QRectF,
 )
 from PyQt5.QtGui import (
+    QNativeGestureEvent,
     QPainter,
     QPixmap,
 )
@@ -37,3 +38,15 @@ class View(QGraphicsView):
             self.scaleView(factor)
             return event.accept()
         super().wheelEvent(event)
+
+    def event(self, e):
+        if isinstance(e, QNativeGestureEvent):
+            gesture_type = e.gestureType()
+            self.nativeGestureEvent(e)
+        return super().event(e)
+
+    def nativeGestureEvent(self, e: QNativeGestureEvent):
+        gesture_type = e.gestureType()
+        if gesture_type == Qt.ZoomNativeGesture:
+            factor = 1.025 if 0 < e.value() else 1 / 1.025
+            self.scaleView(factor)
