@@ -16,25 +16,22 @@ class Scene(QGraphicsScene):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.zoom_signal.connect(self.setPointZoom)
 
     def mousePressEvent(self, e):
         if self.parent().button_add_pose.isChecked()\
-                or self.parent().button_add_face.isChecked():
+                or self.parent().to_add_face:
             if e.button() == Qt.LeftButton:
                 self.start = e.scenePos()
                 self.current_rect = PoseItem(QRectF(self.start, self.start)) \
                     if self.parent().button_add_pose.isChecked() \
                     else FaceItem(QRectF(self.start, self.start))
                 self.addItem(self.current_rect)
-                if self.parent().button_add_pose.isChecked():
-                    self.parent().button_add_pose.setChecked(False)
-                elif self.parent().button_add_face.isChecked():
-                    self.parent().button_add_face.setChecked(False)
-                e.accept()
-            elif e.button() == Qt.RightButton:
+            # elif e.button() == Qt.RightButton:
+            if self.parent().button_add_pose.isChecked():
                 self.parent().button_add_pose.setChecked(False)
-                e.accept()
+            else:
+                self.parent().setAddFace()
+            e.accept()
         super().mousePressEvent(e)
 
     def mouseMoveEvent(self, e):
@@ -62,4 +59,6 @@ class Scene(QGraphicsScene):
         """
         for item in self.items():
             if type(item) is PoseItem:
+                item.scalePoint(factor)
+            elif type(item) is FaceItem:
                 item.scalePoint(factor)

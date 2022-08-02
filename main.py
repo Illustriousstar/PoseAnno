@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 )
 import natsort
 from graphics.labels.PoseItem import PoseItem
+from graphics.labels.FaceItem import FaceItem
 from graphics.Scene import Scene
 from graphics.View import View
 from utils import *
@@ -33,7 +34,7 @@ class Window(QWidget):
         self.view = View(self.scene)
 
         # state variables
-        self.to_add_point = False
+        self.to_add_face = False
         self.pixmap = None
         self.output_dir = None
         self.lastOpenDir = None
@@ -46,7 +47,7 @@ class Window(QWidget):
             text=self.tr("&Delete"),
             slot=self.deleteItem,
             shortcut=QKeySequence.Delete,
-            icon="delete"
+            icon="DELETE"
         )
         open_next_img = newAction(
             parent=self,
@@ -64,15 +65,21 @@ class Window(QWidget):
             icon="PREVIOUS",
         )
 
+        add_face = newAction(
+            parent=self,
+            text=self.tr("&Add Face"),
+            slot=lambda: self.setAddFace(),
+            shortcut="F",
+            icon="FACE",
+        )
+
         # toolbar
-        toolbar = ToolBar("Tools", [open_prev_img, delete_item, open_next_img])
+        toolbar = ToolBar("Tools", [open_prev_img, delete_item, add_face, open_next_img])
 
         # right side buttons
         # point buttons
         self.button_add_pose = QPushButton("Add Pose")
         self.button_add_pose.setCheckable(True)
-        self.button_add_face = QPushButton("Add Face")
-        self.button_add_face.setCheckable(True)
         self.button_delete = QPushButton("Delete")
         self.button_delete.clicked.connect(delete_item.trigger)
         self.button_model = QPushButton("Model")
@@ -92,7 +99,6 @@ class Window(QWidget):
         vbox_right.addWidget(self.button_open_img)
         vbox_right.addWidget(self.button_open_dir)
         vbox_right.addWidget(self.button_add_pose)
-        vbox_right.addWidget(self.button_add_face)
         vbox_right.addWidget(self.button_delete)
         vbox_right.addWidget(self.button_export)
         vbox_right.addWidget(self.button_model)
@@ -109,6 +115,8 @@ class Window(QWidget):
         self.setLayout(hbox)
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
+
+        self.importDirImages(dir="./face_sample")
 
     def deleteItem(self):
         print("Deleted")
@@ -136,7 +144,7 @@ class Window(QWidget):
             self.scene.addItem(pose)
 
         for item in self.scene.items():
-            if type(item) is PoseItem:
+            if type(item) is PoseItem or type(item) is FaceItem:
                 item.setInit()
 
     def openDirDialog(self, _value=False, dirpath=None):
@@ -279,9 +287,13 @@ class Window(QWidget):
         for pose in annotation_to_pose(annotations):
             self.scene.addItem(pose)
         for item in self.scene.items():
-            if type(item) is PoseItem:
+            if type(item) is PoseItem or type(item) is FaceItem:
                 item.setInit()
         return True
+
+    def setAddFace(self):
+        """Reverse state of to_add_face"""
+        self.to_add_face = not self.to_add_face
 
 
 app = QApplication(sys.argv)

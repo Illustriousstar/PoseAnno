@@ -33,14 +33,12 @@ class FaceItem(QGraphicsRectItem):
         self.click_pos = None
         self.click_rect = None
         self.selected_point = None
+        self.bbox_width = 5
 
         self.setFlags(QGraphicsItem.ItemIsSelectable)
         self.setAcceptHoverEvents(True)
 
-        # draw bounding box
-        pen = QPen(Qt.black)
-        pen.setWidth(5)
-        self.setPen(pen)
+        self.scaleBbox()
 
     def setRect(self, rect: QRectF = None) -> None:
         super().setRect(rect.normalized())
@@ -51,7 +49,8 @@ class FaceItem(QGraphicsRectItem):
         set points movable and set point radius
         :return:
         """
-        pass
+        rect = self.scene().sceneRect()
+        self.bbox_width = min(rect.width(), rect.height()) * 0.015
 
     def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
         super().hoverEnterEvent(event)
@@ -92,3 +91,15 @@ class FaceItem(QGraphicsRectItem):
             # reset pos to (0, 0) after move event
             self.setRect(QRectF(self.rect().topLeft() + self.pos(), self.rect().bottomRight() + self.pos()))
             self.setPos(0.0, 0.0)
+
+    def scaleBbox(self, factor=1.0):
+        """
+        scale width of bounding box using given factor
+        :param factor: factor to scale
+        :return:
+        """
+        self.bbox_width *= factor
+        pen = QPen(Qt.black)
+        pen.setWidth(self.bbox_width)
+        self.setPen(pen)
+

@@ -25,7 +25,7 @@ class View(QGraphicsView):
         factor = self.transform().scale(
             scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width()
         # restrict total scale factor
-        if factor < 0.5 or factor > 20:
+        if factor < 0.3 or factor > 20:
             return
         self.setResizeAnchor(self.AnchorUnderMouse)
         self.scale(scaleFactor, scaleFactor)
