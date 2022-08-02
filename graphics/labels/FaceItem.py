@@ -128,4 +128,9 @@ class FaceItem(QGraphicsRectItem):
             pen.setWidth(self.bbox_width)
             self.setPen(pen)
 
-
+    def getBboxCords(self):
+        """
+        get bounding box cordinates in [x1, y1, w, h] format
+        :return:
+        """
+        return [self.rect().x(), self.rect().y(), self.rect().width(), self.rect().height()]

@@ -1,8 +1,8 @@
 import sys
 from data_io import (
-    img_to_annotation,
-    annotation_to_pose,
-    pose_to_annotation,
+    prepare_annotation_file,
+    save_annotations,
+    load_annotations
 )
 from models.openpose import load_openpose
 from PyQt5.QtCore import Qt, QFile
@@ -89,7 +89,7 @@ class Window(QWidget):
         self.button_export = QPushButton("Save")
         self.button_open_dir = QPushButton("Open Dir")
         self.button_open_img.clicked.connect(self.openImgDialog)
-        self.button_export.clicked.connect(self.export_data)
+        self.button_export.clicked.connect(self.saveAnnotations)
         self.button_open_dir.clicked.connect(self.openDirDialog)
 
         # widgets
@@ -129,17 +129,17 @@ class Window(QWidget):
             return
         self.loadFile(image_path)
 
-    def export_data(self):
+    def saveAnnotations(self):
+        if self.filename is None:
+            return
         pose_list = []
+        face_list = []
         for item in self.scene.items():
             if type(item) is PoseItem:
                 pose_list.append(item)
-        face_list = []
-        for item in self.scene.items():
-            if type(item) is FaceItem:
+            elif type(item) is FaceItem:
                 face_list.append(item)
-
-        pose_to_annotation(self.filename, pose_list)
+        save_annotations(self.filename, pose_list, face_list)
 
     def load_model(self):
         if self.filename is None:
@@ -233,10 +233,10 @@ class Window(QWidget):
         :param open_next: whether to open the next or previous img
         :return:
         """
+        self.saveAnnotations()
         if len(self.imageList) <= 0:
             return
         filename = None
-
         # get next image info
         if self.filename is None:
             filename = self.imageList[0]
@@ -253,8 +253,6 @@ class Window(QWidget):
         # load image
         if self.filename:
             self.loadFile(self.filename)
-
-        # TODO: save annotations
 
     def loadFile(self, filename=None):
         """
@@ -294,9 +292,8 @@ class Window(QWidget):
         for item in self.scene.items():
             if type(item) is not QGraphicsPixmapItem:
                 self.scene.removeItem(item)
-        annotations = img_to_annotation(filename)
-        for pose in annotation_to_pose(annotations):
-            self.scene.addItem(pose)
+        for item in load_annotations(filename):
+            self.scene.addItem(item)
         for item in self.scene.items():
             if type(item) is PoseItem or type(item) is FaceItem:
                 item.setInit()
