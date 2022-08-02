@@ -3,8 +3,8 @@ from data_io import (
     img_to_annotation,
     annotation_to_pose,
     pose_to_annotation,
-    load_openpose
 )
+from models.openpose import load_openpose
 from PyQt5.QtCore import Qt, QFile
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
@@ -134,6 +134,11 @@ class Window(QWidget):
         for item in self.scene.items():
             if type(item) is PoseItem:
                 pose_list.append(item)
+        face_list = []
+        for item in self.scene.items():
+            if type(item) is FaceItem:
+                face_list.append(item)
+
         pose_to_annotation(self.filename, pose_list)
 
     def load_model(self):
@@ -231,6 +236,8 @@ class Window(QWidget):
         if len(self.imageList) <= 0:
             return
         filename = None
+
+        # get next image info
         if self.filename is None:
             filename = self.imageList[0]
         else:
@@ -242,8 +249,12 @@ class Window(QWidget):
                 next_index = (cur_index - 1 + len_list) % len_list
             filename = self.imageList[next_index]
         self.filename = filename
+
+        # load image
         if self.filename:
             self.loadFile(self.filename)
+
+        # TODO: save annotations
 
     def loadFile(self, filename=None):
         """
