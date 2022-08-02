@@ -16,6 +16,7 @@ class Scene(QGraphicsScene):
 
     def __init__(self, *args):
         super().__init__(*args)
+        self.zoom_signal.connect(self.setPointZoom)
 
     def mousePressEvent(self, e):
         if self.parent().button_add_pose.isChecked()\
@@ -61,4 +62,4 @@ class Scene(QGraphicsScene):
             if type(item) is PoseItem:
                 item.scalePoint(factor)
             elif type(item) is FaceItem:
-                item.scalePoint(factor)
+                item.scaleBbox(factor)

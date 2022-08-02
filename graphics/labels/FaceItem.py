@@ -34,6 +34,7 @@ class FaceItem(QGraphicsRectItem):
         self.click_rect = None
         self.selected_point = None
         self.bbox_width = 5
+        self.legal = True
 
         self.setFlags(QGraphicsItem.ItemIsSelectable)
         self.setAcceptHoverEvents(True)
@@ -70,7 +71,6 @@ class FaceItem(QGraphicsRectItem):
             if (point_pos - self.click_pos).manhattanLength() < 10:
                 self.selected_point = point
                 e.accept()
-
         super().mousePressEvent(e)
 
     def mouseMoveEvent(self, e):
@@ -80,12 +80,14 @@ class FaceItem(QGraphicsRectItem):
             self.click_rect.__getattribute__(set_point_command)(e.pos())
             self.setRect(self.click_rect)
             e.accept()
+            self.check()
         else:
             super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e):
         if self.selected_point:
             self.selected_point = None
+            self.check()
         else:
             super().mouseReleaseEvent(e)
             # reset pos to (0, 0) after move event
@@ -98,8 +100,32 @@ class FaceItem(QGraphicsRectItem):
         :param factor: factor to scale
         :return:
         """
+        print(f"scale bbox, factor: {factor}")
         self.bbox_width *= factor
         pen = QPen(Qt.black)
         pen.setWidth(self.bbox_width)
         self.setPen(pen)
+
+    def check(self):
+        """
+        check whether face is legal
+        :return:
+        """
+        # 1. bbox should be no less than 24x24
+        if self.rect().width() < 24 or self.rect().height() < 24:
+            self.legal = False
+        # space for future restrictions
+        else:
+            self.legal = True
+
+        # set pen to black if legal, red if not
+        if self.legal:
+            pen = QPen(Qt.black)
+            pen.setWidth(self.bbox_width)
+            self.setPen(pen)
+        else:
+            pen = QPen(Qt.red)
+            pen.setWidth(self.bbox_width)
+            self.setPen(pen)
+
 
