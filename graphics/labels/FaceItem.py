@@ -91,7 +91,7 @@ class FaceItem(QGraphicsRectItem):
         :return:
         """
         self.bbox_width *= factor
-        pen = QPen(Qt.black)
+        pen = QPen(Qt.green)
         pen.setWidth(self.bbox_width)
         self.setPen(pen)
 
@@ -109,7 +109,7 @@ class FaceItem(QGraphicsRectItem):
 
         # set pen to black if legal, red if not
         if self.legal:
-            pen = QPen(Qt.black)
+            pen = QPen(Qt.green)
             pen.setWidth(self.bbox_width)
             self.setPen(pen)
         else:
