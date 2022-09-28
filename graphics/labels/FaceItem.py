@@ -40,7 +40,8 @@ class FaceItem(QGraphicsRectItem):
         :return:
         """
         rect = self.scene().sceneRect()
-        self.bbox_width = min(rect.width(), rect.height()) * 0.015
+        self.bbox_width = min(rect.width(), rect.height()) * 0.0075
+        self.check()
 
     def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
         super().hoverEnterEvent(event)

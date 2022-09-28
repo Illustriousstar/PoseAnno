@@ -1,59 +1,38 @@
-from pycocotools.coco import COCO
-import json
-import numpy as np
-from skimage import io
-import matplotlib.pyplot as plt
+import os
+from bs4 import BeautifulSoup
+from glob import glob
+from data_io import save_annotations, prepare_annotation_file
 
-val_info = r"/Users/maotianwei/Desktop/coco/annotations/person_keypoints_val2017.json"
-val_image = r"/Users/maotianwei/Desktop/coco/val2017"
+threshold = 0.8
+dataset_dir = "/Users/maotianwei/Desktop/FD dataset"
+batch_dir = os.path.join(dataset_dir, "batch1")
 
-coco = COCO(val_info)
-all_ids = coco.imgs.keys()
 
-# person_id = coco.getCatIds(catNms=['person'])
-# person_img_id = coco.getImgIds(catIds=person_id)
-# id = person_img_id[np.random.randint(0, len(person_img_id))]
-# img = coco.loadImgs(id)[0]
-# print(id)
-# print(img)
+def extract_face_from_xml(xml_dir: str):
+    """ read xml file and return face detection results"""
+    with open(xml_dir, "r") as f:
+        data = f.read()
+    data = BeautifulSoup(data, "xml")
+    face_list = data.find_all("face")
+    result_list = []
+    for face in face_list:
+        cords = face.find("circle").attrs.values()
+        cords = [float(x) for x in cords]
+        result_list.append(cords)
+    return result_list
 
-# read json part
-person_img_id = 785
-img = coco.loadImgs(person_img_id)
-catIds = coco.getCatIds(catNms=["person"])
-annIds = coco.getAnnIds(imgIds=img[0]['id'], catIds=catIds, iscrowd=None)
-anno = coco.loadAnns(annIds)
-cat = coco.loadCats(catIds)
-del anno[0]["segmentation"]
-print(img)
-print(anno)
-print(cat)
-I = io.imread("/Users/maotianwei/Desktop/coco/val2017/%s" % (img[0]['file_name']))
-plt.figure()
-plt.axis('off')
-plt.imshow(I)
 
-coco.showAnns(anno)
-plt.show()
+def save_face_in_json(xml_name: str, face_list: list):
+    img_name = xml_name[:-4]
+    prepare_annotation_file(img_name)
+    face_list = [
+        [x[0] - x[2], x[1] - x[2], 2 * x[2]] for x in face_list
+    ]
+    save_annotations(img_name, [], face_list)
 
-with open(val_info, "r") as f:
-    data = json.load(f)
-    license = data["licenses"][3]
-    print(data["licenses"][3])
 
-# write json part
-info = {
-    "description": "test dataset for human key points",
-    "url": "no",
-    "version": "0.0",
-    "contributor": "dust",
-    "date_created": "2022/04/19"
-}
-with open("test_anno.json", "w") as f:
-    json.dump({
-        "info": info,
-        "images": img,
-        "annotations": anno,
-        "categories": cat,
-        "licenses": [license]
-    }, f)
+if __name__ == "__main__":
+    dirs = glob(os.path.join(batch_dir, "*.xml"))
+    for dir in dirs:
+        face_list = extract_face_from_xml(dir)
+        save_face_in_json(dir, face_list)

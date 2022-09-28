@@ -62,6 +62,6 @@ class Scene(QGraphicsScene):
         for item in self.items():
             if type(item) is PoseItem:
                 item.scalePoint(factor)
-            elif type(item) is FaceItem or type(item) is SquareFaceItem:
+            elif type(item) is FaceItem:
                 item.scaleBbox(factor)
 

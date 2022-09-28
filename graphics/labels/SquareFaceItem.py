@@ -2,6 +2,10 @@ from .FaceItem import FaceItem
 from PyQt5.QtCore import (
     QRectF,
 )
+from PyQt5.QtWidgets import (
+    QGraphicsItem,
+    QGraphicsRectItem,
+)
 
 
 class SquareFaceItem(FaceItem):
@@ -10,7 +14,7 @@ class SquareFaceItem(FaceItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.init_state = True
-        print("SquareFaceItem")
+        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
 
     def setInit(self):
         """
@@ -93,3 +97,11 @@ class SquareFaceItem(FaceItem):
                 self.click_rect.setRight(pos.x())
         self.setRect(self.click_rect)
         self.check()
+
+    def getBboxCords(self):
+        """
+        get bounding box coordinates in [x1, y1, w] format
+        :return:
+        """
+        rect = self.rect()
+        return rect.x(), rect.y(), rect.width()

@@ -48,5 +48,5 @@ class View(QGraphicsView):
     def nativeGestureEvent(self, e: QNativeGestureEvent):
         gesture_type = e.gestureType()
         if gesture_type == Qt.ZoomNativeGesture:
-            factor = 1.025 if 0 < e.value() else 1 / 1.025
+            factor = 1.05 if 0 < e.value() else 1 / 1.05
             self.scaleView(factor)

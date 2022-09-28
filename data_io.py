@@ -2,6 +2,7 @@ import os
 import glob
 from graphics.labels.PoseItem import PoseItem
 from graphics.labels.FaceItem import FaceItem
+from graphics.labels.SquareFaceItem import SquareFaceItem
 from pycocotools.coco import COCO
 from PyQt5.QtCore import QRectF
 import json
@@ -20,7 +21,6 @@ def load_annotations(img_name: str):
     annotations = []
     # load annotations from json file
     if len(anno_files) == 0:
-        prepare_annotation_file(img_name)
         return annotations
     else:
         try:
@@ -50,9 +50,10 @@ def load_annotations(img_name: str):
             pose.updatePointRatio()
             pose_list.append(pose)
         elif annotation["category_id"] == 2:
-            face = FaceItem()
+            face = SquareFaceItem()
             # set bounding box
-            rect = QRectF(*annotation["bbox"])
+            x, y, w = annotation["bbox"]
+            rect = QRectF(x, y, w, w)
             face.setRect(rect)
             face_list.append(face)
     item_list = pose_list + face_list
@@ -64,13 +65,16 @@ def save_annotations(img_name, pose_list=None, face_list=None):
     export annotation to json file in coco format
     :param img_name: name of the image
     :param pose_list: list of PoseItems
-    :param face_list: list of FaceItems
+    :param face_list: list of SquareFaceItems or bbox cords
     :return:
     """
     if face_list is None:
         face_list = []
     if pose_list is None:
         pose_list = []
+    if len(pose_list) == 0 and len(face_list) == 0:
+        # no need to save
+        return
     path, name = os.path.split(img_name)
     name, ext = os.path.splitext(name)
     annotation_filename = os.path.join(path, name + "_annotation" + ".json")
@@ -100,12 +104,12 @@ def save_annotations(img_name, pose_list=None, face_list=None):
         annotations.append(annotation)
     # add legal face annotations
     for idx, face in enumerate(face_list):
-        if not face.legal:
-            continue
+        if type(face) is SquareFaceItem:
+            face = face.getBboxCords()
         annotation = {
             "iscrowd": 0,
             "image_id": 0,
-            "bbox": face.getBboxCords(),
+            "bbox": face,
             "category_id": 2,
             "id": idx
         }
@@ -125,7 +129,7 @@ def save_annotations(img_name, pose_list=None, face_list=None):
     f.close()
 
 
-def prepare_annotation_file(img_name):
+def prepare_annotation_file(img_name:str):
     """
     prepare annotation file from template if it doesn't exist
     :param img_name: name of the designated image

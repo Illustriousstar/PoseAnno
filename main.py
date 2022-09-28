@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
 import natsort
 from graphics.labels.PoseItem import PoseItem
 from graphics.labels.FaceItem import FaceItem
+from graphics.labels.SquareFaceItem import SquareFaceItem
 from graphics.Scene import Scene
 from graphics.View import View
 from utils import *
@@ -116,7 +117,7 @@ class Window(QWidget):
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
 
-        self.importDirImages(dir="./face_sample")
+        self.importDirImages(dir="/Users/maotianwei/Desktop/FD dataset/batch1")
 
     def deleteItem(self):
         print("Deleted")
@@ -137,7 +138,7 @@ class Window(QWidget):
         for item in self.scene.items():
             if type(item) is PoseItem:
                 pose_list.append(item)
-            elif type(item) is FaceItem:
+            elif type(item) is SquareFaceItem and item.legal:
                 face_list.append(item)
         save_annotations(self.filename, pose_list, face_list)
 
@@ -278,7 +279,8 @@ class Window(QWidget):
 
         self.filename = filename
         # delete previous pixmap
-        self.scene.removeItem(self.pixmap)
+        if self.pixmap:
+            self.scene.removeItem(self.pixmap)
         self.pixmap = QtGui.QPixmap(filename)
         self.pixmap = self.scene.addPixmap(self.pixmap)
         self.pixmap.setZValue(-1)
@@ -288,14 +290,14 @@ class Window(QWidget):
         # prepare json file
         # assumes same name, but json extension
         # load annotations
-        # TODO: keep previous annotations ?
         for item in self.scene.items():
             if type(item) is not QGraphicsPixmapItem:
                 self.scene.removeItem(item)
         for item in load_annotations(filename):
             self.scene.addItem(item)
         for item in self.scene.items():
-            if type(item) is PoseItem or type(item) is FaceItem:
+            if type(item) is PoseItem \
+                    or type(item) is FaceItem:
                 item.setInit()
         return True
 
