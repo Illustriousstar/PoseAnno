@@ -1,26 +1,15 @@
 from PyQt5.QtCore import (
     Qt,
-    QLineF,
     QRectF,
-    QPointF,
 )
 from PyQt5.QtGui import (
-    QBrush,
     QColor,
-    QPen,
-    QPixmap,
-    QFont
+    QPen
 )
 from PyQt5.QtWidgets import (
-    QGraphicsEllipseItem,
     QGraphicsItem,
-    QGraphicsLineItem,
     QGraphicsRectItem,
-    QGraphicsProxyWidget,
-    QLabel,
 )
-import json
-import os
 
 
 class FaceItem(QGraphicsRectItem):
@@ -100,7 +89,6 @@ class FaceItem(QGraphicsRectItem):
         :param factor: factor to scale
         :return:
         """
-        print(f"scale bbox, factor: {factor}")
         self.bbox_width *= factor
         pen = QPen(Qt.black)
         pen.setWidth(self.bbox_width)
