@@ -72,12 +72,15 @@ def save_annotations(img_name, pose_list=None, face_list=None):
         face_list = []
     if pose_list is None:
         pose_list = []
-    if len(pose_list) == 0 and len(face_list) == 0:
-        # no need to save
-        return
     path, name = os.path.split(img_name)
     name, ext = os.path.splitext(name)
     annotation_filename = os.path.join(path, name + "_annotation" + ".json")
+    if len(pose_list) == 0 and len(face_list) == 0:
+        # no need to save
+        # delete annotation file if it exists
+        if os.path.exists(annotation_filename):
+            os.remove(annotation_filename)
+        return
     if len(glob.glob(annotation_filename)) == 0:
         prepare_annotation_file(img_name)
     annotations = []

@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QWidget,
+    QLabel
 )
 import natsort
 from graphics.labels.PoseItem import PoseItem
@@ -93,10 +94,14 @@ class Window(QWidget):
         self.button_export.clicked.connect(self.saveAnnotations)
         self.button_open_dir.clicked.connect(self.openDirDialog)
 
+        self.progress_label = QLabel("0/0, 0%")
+        self.progress_label.setMaximumHeight(10)
+
         # widgets
         self.fileListWidget = QListWidget()
 
         vbox_right = QVBoxLayout()
+        vbox_right.addWidget(self.progress_label)
         vbox_right.addWidget(self.button_open_img)
         vbox_right.addWidget(self.button_open_dir)
         vbox_right.addWidget(self.button_add_pose)
@@ -249,6 +254,7 @@ class Window(QWidget):
             else:
                 next_index = (cur_index - 1 + len_list) % len_list
             filename = self.imageList[next_index]
+            self.progress_label.setText(f"{next_index} / {len_list}, {next_index/ len_list * 100:.2f}%")
         self.filename = filename
 
         # load image
