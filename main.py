@@ -1,4 +1,5 @@
 import sys
+from config.config import dataset_dir
 from data_io import (
     prepare_annotation_file,
     save_annotations,
@@ -122,7 +123,7 @@ class Window(QWidget):
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
 
-        self.importDirImages(dir="/Users/maotianwei/Desktop/FD dataset/batch1")
+        self.importDirImages(dir=os.path.join(dataset_dir, "batch1"))
 
     def deleteItem(self):
         print("Deleted")

@@ -2,9 +2,8 @@ import os
 from bs4 import BeautifulSoup
 from glob import glob
 from data_io import save_annotations, prepare_annotation_file
+from config.config import dataset_dir
 
-threshold = 0.8
-dataset_dir = "/Users/maotianwei/Desktop/FD dataset"
 batch_dir = os.path.join(dataset_dir, "batch1")
 
 
