@@ -123,7 +123,7 @@ class Window(QWidget):
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
 
-        self.importDirImages(dir=os.path.join(dataset_dir, "batch1"))
+        self.importDirImages(dir=os.path.join(dataset_dir, "batch2"))
 
     def deleteItem(self):
         print("Deleted")
