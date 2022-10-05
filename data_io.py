@@ -119,17 +119,14 @@ def save_annotations(img_name, pose_list=None, face_list=None):
         annotations.append(annotation)
 
     # write to file
-    try:
-        f = open(annotation_filename, "r+")
+    if os.path.exists(annotation_filename):
+        os.remove(annotation_filename)
+    prepare_annotation_file(img_name)
+    with open(annotation_filename, 'r+') as f:
         data = json.load(f)
-    except json.decoder.JSONDecodeError:
-        prepare_annotation_file(img_name)
-        f = open(annotation_filename, "r+")
-        data = json.load(f)
-    data["annotations"] = annotations
-    f.seek(0)
-    json.dump(data, f)
-    f.close()
+        data["annotations"] = annotations
+        f.seek(0)
+        json.dump(data, f)
 
 
 def prepare_annotation_file(img_name:str):
@@ -153,3 +150,26 @@ def prepare_annotation_file(img_name:str):
     ]
     with open(annotation_filename, "w") as f:
         json.dump(json_dict, f)
+
+
+def check_annotation_file(img_name: str):
+    """
+    check if annotation file exists
+    :param img_name: name of the image
+    :return: True if exists
+    """
+    path, name = os.path.split(img_name)
+    name, ext = os.path.splitext(name)
+    annotation_filename = os.path.join(path, name + "_annotation" + ".json")
+    if not os.path.exists(annotation_filename):
+        return False
+    with open(annotation_filename) as f:
+        try:
+            data = json.load(f)
+            if len(data["annotations"]) == 0:
+                return False
+        except json.decoder.JSONDecodeError:
+            return False
+    return True
+
+

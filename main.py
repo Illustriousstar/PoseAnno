@@ -1,9 +1,11 @@
+import os.path
 import sys
 from config.config import dataset_dir
 from data_io import (
     prepare_annotation_file,
     save_annotations,
-    load_annotations
+    load_annotations,
+    check_annotation_file,
 )
 from models.openpose import load_openpose
 from PyQt5.QtCore import Qt, QFile
@@ -16,6 +18,7 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QGraphicsPixmapItem,
     QPushButton,
+    QSplitter,
     QVBoxLayout,
     QWidget,
     QLabel
@@ -28,6 +31,8 @@ from graphics.Scene import Scene
 from graphics.View import View
 from utils import *
 from toolbar import ToolBar
+
+open_img_dir = os.path.join(dataset_dir, "batch2")
 
 
 class Window(QWidget):
@@ -100,8 +105,10 @@ class Window(QWidget):
 
         # widgets
         self.fileListWidget = QListWidget()
+        self.fileListWidget.setResizeMode(QListWidget.Adjust)
 
-        vbox_right = QVBoxLayout()
+        vbox_right_widget = QWidget()
+        vbox_right = QVBoxLayout(vbox_right_widget)
         vbox_right.addWidget(self.progress_label)
         vbox_right.addWidget(self.button_open_img)
         vbox_right.addWidget(self.button_open_dir)
@@ -109,24 +116,31 @@ class Window(QWidget):
         vbox_right.addWidget(self.button_delete)
         vbox_right.addWidget(self.button_export)
         vbox_right.addWidget(self.button_model)
-        # vbox_right.addWidget(self.fileListWidget)
+        vbox_right.addWidget(self.fileListWidget)
 
-        vbox_left = QVBoxLayout()
+        vbox_left_widget = QWidget()
+        vbox_left = QVBoxLayout(vbox_left_widget)
         vbox_left.addWidget(toolbar)
         vbox_left.addWidget(self.view)
 
         hbox = QHBoxLayout()
-        hbox.addLayout(vbox_left)
-        hbox.addLayout(vbox_right)
+        # hbox.addLayout(vbox_left)
+        # add adjustable splitter
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setHandleWidth(3)
+        splitter.addWidget(vbox_left_widget)
+        splitter.addWidget(vbox_right_widget)
+        splitter.setChildrenCollapsible(False)
+        # hbox.addLayout(vbox_right)
+        hbox.addWidget(splitter)
 
         self.setLayout(hbox)
         rect = QApplication.instance().desktop().availableGeometry(self)
         self.resize(int(rect.width() * 2 / 3), int(rect.height() * 2 / 3))
 
-        self.importDirImages(dir=os.path.join(dataset_dir, "batch2"))
+        self.importDirImages(dir=open_img_dir)
 
     def deleteItem(self):
-        print("Deleted")
         for item in self.scene.selectedItems():
             self.scene.removeItem(item)
 
@@ -193,24 +207,21 @@ class Window(QWidget):
         self.lastOpenDir = dir
         self.filename = None
         self.fileListWidget.clear()
-        for filename in self.scanAllImages(dir):
+        self.imageList = self.scanAllImages(dir)
+        for filename in self.imageList:
             if pattern and pattern not in filename:
                 continue
-            label_file = os.path.splitext(filename)[0] + ".json"
+            label_file = os.path.splitext(filename)[0] + "_annotation.json"
             if self.output_dir:
                 label_file_without_path = os.path.basename(label_file)
                 label_file = os.path.join(self.output_dir, label_file_without_path)
-            item = QListWidgetItem(filename)
+            item = QListWidgetItem(os.path.basename(filename))
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             if QFile.exists(label_file):
                 item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
             self.fileListWidget.addItem(item)
-        self.imageList = []
-        for i in range(self.fileListWidget.count()):
-            item = self.fileListWidget.item(i)
-            self.imageList.append(item.text())
         self.switchImg(open_next=True)
 
     def scanAllImages(self, folderPath):
@@ -240,9 +251,21 @@ class Window(QWidget):
         :param open_next: whether to open the next or previous img
         :return:
         """
+        # save annotations
         self.saveAnnotations()
         if len(self.imageList) <= 0:
             return
+
+        # refresh fileListWidget check state
+        if self.filename and check_annotation_file(self.filename):
+            self.fileListWidget.item(self.fileListWidget.currentRow()).setCheckState(
+                Qt.Checked
+            )
+        elif self.fileListWidget.item(self.fileListWidget.currentRow()) is not None:
+            self.fileListWidget.item(self.fileListWidget.currentRow()).setCheckState(
+                Qt.Unchecked
+            )
+
         filename = None
         # get next image info
         if self.filename is None:
@@ -255,7 +278,7 @@ class Window(QWidget):
             else:
                 next_index = (cur_index - 1 + len_list) % len_list
             filename = self.imageList[next_index]
-            self.progress_label.setText(f"{next_index} / {len_list}, {next_index/ len_list * 100:.2f}%")
+            self.progress_label.setText(f"{next_index} / {len_list}, {next_index / len_list * 100:.2f}%")
         self.filename = filename
 
         # load image
