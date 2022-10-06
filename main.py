@@ -32,7 +32,7 @@ from graphics.View import View
 from utils import *
 from toolbar import ToolBar
 
-open_img_dir = os.path.join(dataset_dir, "batch2")
+open_img_dir = os.path.join(dataset_dir, "batch3")
 
 
 class Window(QWidget):

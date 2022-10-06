@@ -22,7 +22,7 @@ class FaceItem(QGraphicsRectItem):
         self.click_pos = None
         self.click_rect = None
         self.selected_point = None
-        self.bbox_width = 5
+        self.bbox_width = 3
         self.legal = True
 
         self.setFlags(QGraphicsItem.ItemIsSelectable)
@@ -40,7 +40,6 @@ class FaceItem(QGraphicsRectItem):
         :return:
         """
         rect = self.scene().sceneRect()
-        self.bbox_width = min(rect.width(), rect.height()) * 0.0075
         self.check()
 
     def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:

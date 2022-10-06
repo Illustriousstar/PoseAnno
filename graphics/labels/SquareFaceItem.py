@@ -58,6 +58,13 @@ class SquareFaceItem(FaceItem):
             rect.setRight(rect.right() + (height - width) / 2)
         self.setRect(rect)
 
+    def mouseDoubleClickEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        """ Double click to set rect to be 24x24 """
+        rect = self.rect()
+        rect.setWidth(24)
+        rect.setHeight(24)
+        self.setRect(rect)
+
     def mouseMoveEvent(self, e):
         pos = e.pos()
         if not self.selected_point:

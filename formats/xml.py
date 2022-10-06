@@ -4,7 +4,7 @@ from glob import glob
 from data_io import save_annotations, prepare_annotation_file
 from config.config import dataset_dir
 
-batch_dir = os.path.join(dataset_dir, "batch2")
+batch_dir = os.path.join(dataset_dir, "batch3")
 
 
 def extract_face_from_xml(xml_dir: str):
