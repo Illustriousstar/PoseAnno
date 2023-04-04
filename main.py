@@ -26,13 +26,12 @@ from PyQt5.QtWidgets import (
 import natsort
 from graphics.labels.PoseItem import PoseItem
 from graphics.labels.FaceItem import FaceItem
-from graphics.labels.SquareFaceItem import SquareFaceItem
 from graphics.Scene import Scene
 from graphics.View import View
 from utils import *
 from toolbar import ToolBar
 
-open_img_dir = os.path.join(dataset_dir, "batch3")
+open_img_dir = os.path.join(dataset_dir, "1")
 
 
 class Window(QWidget):
@@ -54,9 +53,18 @@ class Window(QWidget):
             parent=self,
             text=self.tr("&Delete"),
             slot=self.deleteItem,
-            shortcut=QKeySequence.Delete,
+            shortcut=[QKeySequence.Delete, "R"],
             icon="DELETE"
         )
+
+        delete_all_items = newAction(
+            parent=self,
+            text=self.tr("&Delete All"),
+            slot=lambda: self.deleteItem(delete_all=True),
+            shortcut=["Ctrl+R"],
+            icon="DELETE"
+        )
+
         open_next_img = newAction(
             parent=self,
             text=self.tr("&Next Image"),
@@ -82,20 +90,20 @@ class Window(QWidget):
         )
 
         # toolbar
-        toolbar = ToolBar("Tools", [open_prev_img, delete_item, add_face, open_next_img])
+        toolbar = ToolBar("Tools", [open_prev_img, delete_item, delete_all_items, add_face, open_next_img])
 
         # right side buttons
         # point buttons
-        self.button_add_pose = QPushButton("Add Pose")
+        self.button_add_pose = QPushButton("新建姿态")
         self.button_add_pose.setCheckable(True)
-        self.button_delete = QPushButton("Delete")
+        self.button_delete = QPushButton("删除")
         self.button_delete.clicked.connect(delete_item.trigger)
-        self.button_model = QPushButton("Model")
+        self.button_model = QPushButton("模型预测")
         self.button_model.clicked.connect(self.load_model)
         # import / export data
-        self.button_open_img = QPushButton("Open")
-        self.button_export = QPushButton("Save")
-        self.button_open_dir = QPushButton("Open Dir")
+        self.button_open_img = QPushButton("打开文件")
+        self.button_export = QPushButton("保存标注")
+        self.button_open_dir = QPushButton("打开文件夹")
         self.button_open_img.clicked.connect(self.openImgDialog)
         self.button_export.clicked.connect(self.saveAnnotations)
         self.button_open_dir.clicked.connect(self.openDirDialog)
@@ -140,9 +148,10 @@ class Window(QWidget):
 
         self.importDirImages(dir=open_img_dir)
 
-    def deleteItem(self):
-        for item in self.scene.selectedItems():
-            self.scene.removeItem(item)
+    def deleteItem(self, delete_all=False):
+        for item in (self.scene.items() if delete_all else self.scene.selectedItems()):
+            if isinstance(item, FaceItem) or isinstance(item, PoseItem):
+                self.scene.removeItem(item)
 
     def openImgDialog(self):
         image_path, _ = QFileDialog.getOpenFileName()
@@ -158,7 +167,7 @@ class Window(QWidget):
         for item in self.scene.items():
             if type(item) is PoseItem:
                 pose_list.append(item)
-            elif type(item) is SquareFaceItem and item.legal:
+            elif type(item) is FaceItem and item.legal:
                 face_list.append(item)
         save_annotations(self.filename, pose_list, face_list)
 

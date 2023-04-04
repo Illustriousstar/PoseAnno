@@ -7,7 +7,6 @@ from PyQt5.QtCore import (
 from PyQt5.QtWidgets import QGraphicsScene
 from graphics.labels.PoseItem import PoseItem
 from graphics.labels.FaceItem import FaceItem
-from graphics.labels.SquareFaceItem import SquareFaceItem
 
 
 class Scene(QGraphicsScene):
@@ -26,7 +25,7 @@ class Scene(QGraphicsScene):
                 self.start = e.scenePos()
                 self.current_rect = PoseItem(QRectF(self.start, self.start)) \
                     if self.parent().button_add_pose.isChecked() \
-                    else SquareFaceItem(QRectF(self.start, self.start))
+                    else FaceItem(QRectF(self.start, self.start))
                 self.addItem(self.current_rect)
             # elif e.button() == Qt.RightButton:
             if self.parent().button_add_pose.isChecked():
@@ -62,6 +61,4 @@ class Scene(QGraphicsScene):
         for item in self.items():
             if type(item) is PoseItem:
                 item.scalePoint(factor)
-            elif type(item) is FaceItem:
-                item.scaleBbox(factor)
 

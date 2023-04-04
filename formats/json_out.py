@@ -29,7 +29,7 @@ def out(batch_name: str = "batch1", to_draw_demo: bool = False):
         os.system(f"cp '{img}' '{out_dir}'")
         os.system(f"cp '{anno}' '{out_dir}'")
 
-    # draw bounding boxed and save
+    # draw bounding boxes and save
     if to_draw_demo:
         os.makedirs(draw_dir, exist_ok=True)
         for img, anno in zip(imgs, annotations):

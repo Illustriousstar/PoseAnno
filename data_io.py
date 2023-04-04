@@ -2,11 +2,12 @@ import os
 import glob
 from graphics.labels.PoseItem import PoseItem
 from graphics.labels.FaceItem import FaceItem
-from graphics.labels.SquareFaceItem import SquareFaceItem
 from pycocotools.coco import COCO
 from PyQt5.QtCore import QRectF
 import json
-import PIL
+from PIL import Image
+
+base_dir = os.path.dirname(__file__)
 
 
 def load_annotations(img_name: str):
@@ -50,10 +51,10 @@ def load_annotations(img_name: str):
             pose.updatePointRatio()
             pose_list.append(pose)
         elif annotation["category_id"] == 2:
-            face = SquareFaceItem()
+            face = FaceItem()
             # set bounding box
-            x, y, w = annotation["bbox"]
-            rect = QRectF(x, y, w, w)
+            x, y, w, h = annotation["bbox"]
+            rect = QRectF(x, y, w, h)
             face.setRect(rect)
             face_list.append(face)
     item_list = pose_list + face_list
@@ -65,7 +66,7 @@ def save_annotations(img_name, pose_list=None, face_list=None):
     export annotation to json file in coco format
     :param img_name: name of the image
     :param pose_list: list of PoseItems
-    :param face_list: list of SquareFaceItems or bbox cords
+    :param face_list: list of FaceItems or bbox cords
     :return:
     """
     if face_list is None:
@@ -107,7 +108,7 @@ def save_annotations(img_name, pose_list=None, face_list=None):
         annotations.append(annotation)
     # add legal face annotations
     for idx, face in enumerate(face_list):
-        if type(face) is SquareFaceItem:
+        if type(face) is FaceItem:
             face = face.getBboxCords()
         annotation = {
             "iscrowd": 0,
@@ -129,7 +130,7 @@ def save_annotations(img_name, pose_list=None, face_list=None):
         json.dump(data, f)
 
 
-def prepare_annotation_file(img_name:str):
+def prepare_annotation_file(img_name: str):
     """
     prepare annotation file from template if it doesn't exist
     :param img_name: name of the designated image
@@ -137,9 +138,10 @@ def prepare_annotation_file(img_name:str):
     path, name = os.path.split(img_name)
     name, ext = os.path.splitext(name)
     annotation_filename = os.path.join(path, name + "_annotation" + ".json")
-    img = PIL.Image.open(img_name)
+    img = Image.open(img_name)
     width, height = img.size
-    with open("config/annotation_template.json") as f:
+    template_filename = os.path.join(base_dir, "config", "annotation_template.json")
+    with open(template_filename) as f:
         json_dict = json.load(f)
     json_dict["images"] = [{
         "file_name": name + ext,
@@ -171,5 +173,3 @@ def check_annotation_file(img_name: str):
         except json.decoder.JSONDecodeError:
             return False
     return True
-
-

@@ -25,7 +25,7 @@ class FaceItem(QGraphicsRectItem):
         self.bbox_width = 3
         self.legal = True
 
-        self.setFlags(QGraphicsItem.ItemIsSelectable)
+        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
         self.setAcceptHoverEvents(True)
 
         self.scaleBbox()
